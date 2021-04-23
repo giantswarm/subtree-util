@@ -55,11 +55,6 @@ git checkout "${default_branch}"
 # update the default branch
 git pull origin "${default_branch}"
 
-# create the pr branch
-git checkout -b "${pr_branch}"
-
-set -x
-
 # fetch the most recent state from the fork
 git fetch upstream-copy "${fork_default_branch}"
 
@@ -69,8 +64,8 @@ git checkout "upstream-copy/${fork_default_branch}"
 # extract the path we require into a branch named temp-split-branch
 git subtree split -P "${fork_chart_path}" -b temp-split-branch
 
-# go back to the pr branch
-git checkout "${pr_branch}"
+# create the pr branch from the default branch of the repository
+git checkout -b "${pr_branch}" "${default_branch}"
 
 # merge back from the temp-split-branch
 git subtree -d merge --squash -P "${target_app_path}" temp-split-branch
