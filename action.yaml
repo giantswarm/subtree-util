@@ -1,0 +1,26 @@
+name: subtree-util
+description: Utility action to keep content from forked repositories up to date
+inputs:
+  target_github_token:
+    required: true
+    description: GitHub token with permissions on the target repository
+  target_repository:
+    required: true
+    description: ORG/REPO-NAME of the target repository
+  target_path:
+    required: true
+    description: Where to apply the subtree
+  source_path:
+    required: true
+    description: Where to take the subtree from
+runs:
+  using: composite
+  steps:
+    - name: Update fork
+      shell: bash
+      run: ${{ github.action_path }}/action/action.sh
+      env:
+        TARGET_GITHUB_TOKEN: ${{ inputs.target_github_token }}
+        TARGET_REPOSITORY: ${{ inputs.target_repository }}
+        TARGET_PATH: ${{ inputs.target_path }}
+        SOURCE_PATH: ${{ inputs.source_path }}
