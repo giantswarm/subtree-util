@@ -93,6 +93,8 @@ if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
   # set up remote of target repository
   git -C .target-repo remote add -f --no-tags upstream-copy ../
 
+  set -x
+
   # determine default branch of our repo
   target_default_branch=$(git -C .target-repo remote show origin | grep "HEAD branch" | sed "s/.*: //")
 
