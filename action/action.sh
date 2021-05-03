@@ -118,7 +118,7 @@ if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
   fi
 
   # push changes into branch
-  git -C .target-repo subtree push origin update-from-upstream
+  git -C .target-repo push origin update-from-upstream
 
   if [[ "${pr_info}" == "0,null" ]]; then
     gh --repo "${TARGET_REPOSITORY}" pr create --title "Update from upstream" --base "${target_default_branch}" --head update-from-upstream --label "automated-update" --body "This PR has been created from automation in https://github.com/${GITHUB_REPOSITORY}"
