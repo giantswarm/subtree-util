@@ -86,9 +86,9 @@ pr_info=$(echo "$pr_list" | jq -cjr 'length, ",", .[1].additions | tostring')
 # - no open prs from automation (0,null)
 # - one open pr from automation and no external changes (1,1)
 if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
-
   # clone the target repository
   gh repo clone "${TARGET_REPOSITORY}" .target-repo
+  git -C .target-repo remote set-url origin "https://${TARGET_GITHUB_TOKEN}@github.com/${TARGET_REPOSITORY}.git"
 
   # set up remote of target repository
   git -C .target-repo remote add -f --no-tags upstream-copy ../
