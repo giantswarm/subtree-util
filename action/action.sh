@@ -54,20 +54,24 @@ default_branch=$(echo "$repo_info" | jq -cr ".default_branch")
 # set up remote
 git remote add -f upstream "${fork_clone_url}"
 
-# set up branch tracking
-git switch -c "upstream-${default_branch}" "upstream/${default_branch}"
+# # set up branch tracking
+# git switch -c "upstream-${default_branch}" "upstream/${default_branch}"
 
-# fetch from upstream
-git fetch upstream
+# # fetch from upstream
+# git fetch upstream
 
-# merge default branch from upstream into your local upstream-${default_branch} branch
-git merge --no-edit "upstream/${default_branch}"
+# # query the latest tag of the fork
+# latest_tag=$(git ls-remote --exit-code --tags --sort -version:refname upstream "loki-distributed-*" | head -n 1)
+# latest_tag="${latest_tag##*/}"
 
-# switch to our default branch
-git checkout "${default_branch}"
+# # merge default branch from upstream into your local upstream-${default_branch} branch
+# git merge --no-edit "upstream/${default_branch}"
+
+# # switch to our default branch
+# git checkout "${default_branch}"
 
 # merge upstream changes
-git merge --no-edit "upstream-${default_branch}"
+git merge --no-edit "upstream/${default_branch}"
 
 # push the updated default branch into the repository
 git push origin "${default_branch}"
