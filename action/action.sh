@@ -73,11 +73,9 @@ if [[ -n "${SOURCE_TAG_WILDCARD}" ]]; then
   echo "Environment variable 'SOURCE_TAG_WILDCARD' set to ${SOURCE_TAG_WILDCARD}."
 
   # query the latest tag of the fork
-  latest_tag=$(git ls-remote --exit-code --tags --sort -version:refname upstream "${SOURCE_TAG_WILDCARD}" | head -n 1)
-  latest_tag="${latest_tag##*/}"
+  merge_from=$(git ls-remote --exit-code --tags --sort -version:refname upstream "${SOURCE_TAG_WILDCARD}" | head -n 1 | awk '{print $2;}')
 
-  echo "Updating from 'upstream/${latest_tag}'"
-  merge_from="upstream/${latest_tag}"
+  echo "Updating from '${merge_from}'"
 fi
 
 # merge upstream changes
