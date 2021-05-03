@@ -83,12 +83,12 @@ pr_info=$(echo "$pr_list" | jq -cjr 'length, ",", .[1].additions | tostring')
 
 
 # if there are
-# no open prs from automation (0,null)
-# one open pr from automation and no external changes (1,1)
+# - no open prs from automation (0,null)
+# - one open pr from automation and no external changes (1,1)
 if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
-
   # clone the target repository
   gh repo clone "${TARGET_REPOSITORY}" .target-repo
+  git -C .target-repo remote set-url origin "https://${TARGET_GITHUB_TOKEN}@github.com/${TARGET_REPOSITORY}.git"
 
   # set up remote of target repository
   git -C .target-repo remote add -f --no-tags upstream-copy ../
@@ -96,24 +96,40 @@ if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
   # determine default branch of our repo
   target_default_branch=$(git -C .target-repo remote show origin | grep "HEAD branch" | sed "s/.*: //")
 
-  # go to the default branch of the upstream-copy remote
-  git -C .target-repo checkout "upstream-copy/${default_branch}"
+  # if the source path is the root of the repository, we can skip
+  # the subtree split and git subtree merge directly into the target
+  if [[ "${SOURCE_PATH}" == "." ]]; then
+    # create the pr branch from the default branch of the repository
+    git -C .target-repo checkout -b update-from-upstream "${target_default_branch}"
 
-  # extract the path we require into a branch named temp-split-branch
-  git -C .target-repo subtree split -P "${SOURCE_PATH}" -b temp-split-branch
+    # git subtree merge the upstream-copy default branch
+    git -C .target-repo subtree merge --squash -P "${TARGET_PATH}" "upstream-copy/${default_branch}"
+  else
+    # go to the default branch of the upstream-copy remote
+    git -C .target-repo checkout "upstream-copy/${default_branch}"
 
-  # create the pr branch from the default branch of the repository
-  git -C .target-repo checkout -b update-from-upstream "${target_default_branch}"
+    # extract the path we require into a branch named temp-split-branch
+    git -C .target-repo subtree split -P "${SOURCE_PATH}" -b temp-split-branch
 
-  # merge back from the temp-split-branch
-  git -C .target-repo subtree merge --squash -P "${TARGET_PATH}" temp-split-branch
+    # create the pr branch from the default branch of the repository
+    git -C .target-repo checkout -b update-from-upstream "${target_default_branch}"
+
+    # merge back from the temp-split-branch
+    git -C .target-repo subtree merge --squash -P "${TARGET_PATH}" temp-split-branch
+  fi
 
   # push changes into branch
-  git -C .target-repo subtree push origin update-from-upstream
+  git -C .target-repo push origin update-from-upstream
 
   if [[ "${pr_info}" == "0,null" ]]; then
+    # Create required label
+    set +e
+    curl --silent -f -X POST "https://api.github.com/repos/${TARGET_REPOSITORY}/labels" -H "Authorization: token ${TARGET_GITHUB_TOKEN}" -d '{"name":"automated-update","color":"e86d00","description":"Used to identify automated updates from upstream-forks"}'
+    set -e
+    # create a PR
     gh --repo "${TARGET_REPOSITORY}" pr create --title "Update from upstream" --base "${target_default_branch}" --head update-from-upstream --label "automated-update" --body "This PR has been created from automation in https://github.com/${GITHUB_REPOSITORY}"
   else
-    gh --repo "${TARGET_REPOSITORY}" pr "update-from-upstream" --body "Force pushed through automation"
+    # comment on PR
+    gh --repo "${TARGET_REPOSITORY}" pr "update-from-upstream" comment --body "Force pushed through automation"
   fi
 fi
