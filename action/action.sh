@@ -33,7 +33,7 @@ if [[ -z "${TARGET_PATH}" ]]; then
   exit 1
 fi
 if [[ -z "${SOURCE_PATH}" ]]; then
-  echo "Environment variable 'INPUT_SOURCE_REPOSITORY' unset or not found."
+  echo "Environment variable 'SOURCE_PATH' unset or not found."
   echo "TODO"
   exit 1
 fi
@@ -60,9 +60,6 @@ git remote add -f upstream "${fork_clone_url}"
 # # fetch from upstream
 # git fetch upstream
 
-# # query the latest tag of the fork
-# latest_tag=$(git ls-remote --exit-code --tags --sort -version:refname upstream "loki-distributed-*" | head -n 1)
-# latest_tag="${latest_tag##*/}"
 
 # # merge default branch from upstream into your local upstream-${default_branch} branch
 # git merge --no-edit "upstream/${default_branch}"
@@ -70,8 +67,21 @@ git remote add -f upstream "${fork_clone_url}"
 # # switch to our default branch
 # git checkout "${default_branch}"
 
+merge_from="upstream/${default_branch}"
+
+if [[ -n "${SOURCE_TAG_WILDCARD}" ]]; then
+  echo "Environment variable 'SOURCE_TAG_WILDCARD' set to ${SOURCE_TAG_WILDCARD}."
+
+  # query the latest tag of the fork
+  latest_tag=$(git ls-remote --exit-code --tags --sort -version:refname upstream "${SOURCE_TAG_WILDCARD}" | head -n 1)
+  latest_tag="${latest_tag##*/}"
+
+  echo "Updating from 'upstream/${latest_tag}'"
+  merge_from="upstream/${latest_tag}"
+fi
+
 # merge upstream changes
-git merge --no-edit "upstream/${default_branch}"
+git merge --no-edit "${merge_from}"
 
 # push the updated default branch into the repository
 git push origin "${default_branch}"

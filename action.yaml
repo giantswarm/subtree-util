@@ -13,6 +13,9 @@ inputs:
   source_path:
     required: true
     description: Where to take the subtree from
+  source_tag_wildcard:
+    required: false
+    description: Git tag wildcard to update to
 runs:
   using: composite
   steps:
@@ -24,3 +27,4 @@ runs:
         TARGET_REPOSITORY: ${{ inputs.target_repository }}
         TARGET_PATH: ${{ inputs.target_path }}
         SOURCE_PATH: ${{ inputs.source_path }}
+        SOURCE_TAG_WILDCARD: ${{ inputs.source_tag_wildcard }}
