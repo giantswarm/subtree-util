@@ -101,6 +101,9 @@ if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
   # if the source path is the root of the repository, we can skip
   # the subtree split and git subtree merge directly into the target
   if [[ "${SOURCE_PATH}" == "." ]]; then
+    # create the pr branch from the default branch of the repository
+    git -C .target-repo checkout -b update-from-upstream "${target_default_branch}"
+
     # git subtree merge the upstream-copy default branch
     git -C .target-repo subtree merge --squash -P "${TARGET_PATH}" "upstream-copy/${default_branch}"
   else
