@@ -39,7 +39,7 @@ if [[ -z "${SOURCE_PATH}" ]]; then
 fi
 
 log () {
-  printf "-- %s\n" "$*"
+  printf "[LOG] %s\n" "$*"
 }
 
 # set up name and email of git commiter..
