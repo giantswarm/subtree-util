@@ -143,7 +143,7 @@ if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
 
     # extract the path we require into a branch named temp-split-branch
     log "git subtree split -P ${SOURCE_PATH} -b temp-split-branch"
-    git -C .target-repo subtree split -P "${SOURCE_PATH}" -b temp-split-branch
+    git -C .target-repo subtree -d split -P "${SOURCE_PATH}" -b temp-split-branch
 
     # create the pr branch from the default branch of the repository
     log "Creating PR branch 'update-from-upstream' from '${target_default_branch}'"
@@ -151,7 +151,7 @@ if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
 
     # merge back from the temp-split-branch
     log "git subtree merge --squash -P ${TARGET_PATH} temp-split-branch"
-    git -C .target-repo subtree merge --squash -P "${TARGET_PATH}" temp-split-branch
+    git -C .target-repo subtree -d merge --squash -P "${TARGET_PATH}" temp-split-branch
   fi
 
   # push changes into branch
