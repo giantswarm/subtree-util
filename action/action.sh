@@ -86,11 +86,11 @@ if [[ -n "${SOURCE_TAG_WILDCARD}" ]]; then
   merge_from=$(git ls-remote --exit-code --tags --sort -version:refname upstream "${SOURCE_TAG_WILDCARD}" | head -n 1 | awk '{print $2;}')
 fi
 
-log "Updating default brach from '${merge_from}'"
+log "Updating default branch from '${merge_from}'"
 # merge upstream changes
 git merge --no-edit "${merge_from}"
 
-log "Pushing default brach to origin remote"
+log "Pushing default branch to origin remote"
 # push the updated default branch into the repository
 git push origin "${default_branch}"
 
@@ -112,8 +112,8 @@ log "Result: ${pr_info} (number of matching PRs, number of additions)"
 if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
   # clone the target repository
   log "Cloning the target repository (${TARGET_REPOSITORY}) into subfolder .target-repo"
-  gh repo clone "${TARGET_REPOSITORY}" .target-repo
-  git -C .target-repo remote set-url origin "https://${TARGET_GITHUB_TOKEN}@github.com/${TARGET_REPOSITORY}.git"
+  git clone "https://${TARGET_GITHUB_TOKEN}@github.com/${TARGET_REPOSITORY}.git" .target-repo
+  #git -C .target-repo remote set-url origin "https://${TARGET_GITHUB_TOKEN}@github.com/${TARGET_REPOSITORY}.git"
 
   # set up remote of target repository
   log "Setting up remote 'upstream-copy' in target repository clone"
