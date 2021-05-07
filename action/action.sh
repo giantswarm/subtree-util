@@ -135,6 +135,8 @@ if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
     log "git subtree merge --squash -P ${TARGET_PATH} upstream-copy/${default_branch}"
     git -C .target-repo subtree merge --squash -P "${TARGET_PATH}" "upstream-copy/${default_branch}"
   else
+
+    set -x
     # go to the default branch of the upstream-copy remote
     log "Checkout 'upstream-copy/${default_branch}' in target repository"
     git -C .target-repo checkout "upstream-copy/${default_branch}"
