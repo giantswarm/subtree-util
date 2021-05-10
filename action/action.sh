@@ -108,8 +108,8 @@ log "Result: ${pr_info} (number of matching PRs, number of additions)"
 
 # if there are
 # - no open prs from automation (0,null)
-# - one open pr from automation and no external changes (1,1)
-if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
+# - one open pr from automation and no external changes (1,null)
+if [[ "${pr_info}" == "0,null" || "${pr_info}" == "1,null" ]]; then
   # clone the target repository
   log "Cloning the target repository (${TARGET_REPOSITORY}) into subfolder .target-repo"
   git clone "https://${TARGET_GITHUB_TOKEN}@github.com/${TARGET_REPOSITORY}.git" .target-repo
