@@ -177,6 +177,11 @@ if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
     cd ..
   fi
 
+  git diff --name-only
+  git -C .target-repo diff --name-only
+
+  touch .target-repo/diff
+
   if [[ "${pr_info}" == "0,null" ]]; then
     # push changes into branch
     log "Push changes into PR branch"
@@ -188,8 +193,7 @@ if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
     set -e
     # create a PR
     log "Creating PR"
-    touch diff
-    echo -e "This PR has been created from automation in https://github.com/${GITHUB_REPOSITORY}\n\n$(cat diff)" | \
+    echo -e "This PR has been created from automation in https://github.com/${GITHUB_REPOSITORY}\n\n$(cat .target-repo/diff)" | \
       gh --repo "${TARGET_REPOSITORY}" pr create --title "Update from upstream" --base "${target_default_branch}" --head update-from-upstream --label "automated-update" --body-file -
   else
     # push changes into branch
@@ -198,7 +202,7 @@ if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
 
     # comment on PR
     log "Adding comment to existing PR"
-    echo -e "Force pushed through automation\n\n$(cat diff)" | \
+    echo -e "Force pushed through automation\n\n$(cat .target-repo/diff)" | \
       gh --repo "${TARGET_REPOSITORY}" pr "update-from-upstream" comment --body-file -
   fi
 fi
