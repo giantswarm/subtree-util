@@ -177,11 +177,11 @@ if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
     cd ..
   fi
 
-  # push changes into branch
-  log "Push changes into PR branch"
-  git -C .target-repo push origin update-from-upstream
-
   if [[ "${pr_info}" == "0,null" ]]; then
+    # push changes into branch
+    log "Push changes into PR branch"
+    git -C .target-repo push origin update-from-upstream
+
     # Create required label
     set +e
     curl --silent -f -X POST "https://api.github.com/repos/${TARGET_REPOSITORY}/labels" -H "Authorization: token ${TARGET_GITHUB_TOKEN}" -d '{"name":"automated-update","color":"e86d00","description":"Used to identify automated updates from upstream-forks"}'
@@ -192,6 +192,10 @@ if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
     echo -e "This PR has been created from automation in https://github.com/${GITHUB_REPOSITORY}\n\n$(cat diff)" | \
       gh --repo "${TARGET_REPOSITORY}" pr create --title "Update from upstream" --base "${target_default_branch}" --head update-from-upstream --label "automated-update" --body-file -
   else
+    # push changes into branch
+    log "Force push changes into PR branch"
+    git -C .target-repo push -f origin update-from-upstream
+
     # comment on PR
     log "Adding comment to existing PR"
     echo -e "Force pushed through automation\n\n$(cat diff)" | \
