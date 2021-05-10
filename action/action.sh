@@ -169,6 +169,8 @@ if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
       log "subtree merge had conflicts, trying to fix"
       git diff --name-only --diff-filter=U | xargs git checkout --ours
       git diff --name-only --diff-filter=U | xargs git add
+
+      git commit --no-edit
     fi
 
     # cd back..
