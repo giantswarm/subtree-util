@@ -135,12 +135,12 @@ if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
     log "git subtree merge --squash -P ${TARGET_PATH} upstream-copy/${default_branch}"
     git -C .target-repo subtree merge --squash -P "${TARGET_PATH}" "upstream-copy/${default_branch}"
   else
-
     set -x
     # go to the default branch of the upstream-copy remote
     log "Checkout 'upstream-copy/${default_branch}' in target repository"
     git -C .target-repo checkout "upstream-copy/${default_branch}"
 
+    # use cd, we're unsure if -C works well with git subtree
     cd .target-repo
 
     # extract the path we require into a branch named temp-split-branch
@@ -153,8 +153,25 @@ if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
 
     # merge back from the temp-split-branch
     log "git subtree merge --squash -P ${TARGET_PATH} temp-split-branch"
+    # Do not fail immediately. We want to try further merge conflict
+    # autoresolving
+    set +e
     git subtree -d merge --squash -P "${TARGET_PATH}" temp-split-branch
+    retval=$?
+    set -e
 
+    # Capture a diff. It will be posted into the PR
+    echo -e 'During subtree-merge there were some conflicts:\n```diff' > diff
+    git diff >> diff
+    echo '```' >> diff
+
+    if [[ "${retval}" != 0 ]]; then
+      log "subtree merge had conflicts, trying to fix"
+      git diff --name-only --diff-filter=U | xargs git checkout --ours
+      git diff --name-only --diff-filter=U | xargs git add
+    fi
+
+    # cd back..
     cd ..
   fi
 
@@ -169,10 +186,13 @@ if [[ "${pr_info}" == "1,1" || "${pr_info}" == "0,null" ]]; then
     set -e
     # create a PR
     log "Creating PR"
-    gh --repo "${TARGET_REPOSITORY}" pr create --title "Update from upstream" --base "${target_default_branch}" --head update-from-upstream --label "automated-update" --body "This PR has been created from automation in https://github.com/${GITHUB_REPOSITORY}"
+    touch diff
+    echo -e "This PR has been created from automation in https://github.com/${GITHUB_REPOSITORY}\n\n$(cat diff)" | \
+      gh --repo "${TARGET_REPOSITORY}" pr create --title "Update from upstream" --base "${target_default_branch}" --head update-from-upstream --label "automated-update" --body-file -
   else
     # comment on PR
     log "Adding comment to existing PR"
-    gh --repo "${TARGET_REPOSITORY}" pr "update-from-upstream" comment --body "Force pushed through automation"
+    echo -e "Force pushed through automation\n\n$(cat diff)" | \
+      gh --repo "${TARGET_REPOSITORY}" pr "update-from-upstream" comment --body-file -
   fi
 fi
