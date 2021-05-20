@@ -72,11 +72,9 @@ merge_from="upstream/${default_branch}"
 if [[ -n "${SOURCE_TAG_WILDCARD}" ]]; then
   log "Environment variable 'SOURCE_TAG_WILDCARD' set to '${SOURCE_TAG_WILDCARD}'."
 
-  set -x
-  git ls-remote --tags --sort -version:refname upstream "${SOURCE_TAG_WILDCARD}"
   # query the latest tag of the fork
   merge_from=$(git ls-remote --tags --sort -version:refname upstream "${SOURCE_TAG_WILDCARD}" | head -n 1 | awk '{print $2;}')
-  set +x
+  log "Latest ref from upstream '${SOURCE_TAG_WILDCARD}' is '${merge_from}'"
 fi
 
 log "Updating default branch from '${merge_from}'"
