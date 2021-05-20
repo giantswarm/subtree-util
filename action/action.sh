@@ -51,7 +51,7 @@ git config --global core.pager "cat"
 log "Un-shallowing clone"
 # repositories in GitHub actions are shallow clones, this makes sure we have a full copy
 git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
-git fetch origin --unshallow
+git fetch --quiet origin --unshallow --no-auto-gc
 
 log "Querying information for ${GITHUB_REPOSITORY} from GitHub API"
 # query the forks clone url, we need it for setting up the remote
@@ -64,17 +64,18 @@ log "Default branch of this repository: ${default_branch}"
 
 # set up remote
 log "Setting up remote 'upstream' with '${fork_clone_url}'"
-git remote add -f upstream "${fork_clone_url}"
+git remote add upstream "${fork_clone_url}"
+git fetch --quiet upstream
 
 merge_from="upstream/${default_branch}"
 
 if [[ -n "${SOURCE_TAG_WILDCARD}" ]]; then
   log "Environment variable 'SOURCE_TAG_WILDCARD' set to '${SOURCE_TAG_WILDCARD}'."
 
-  set -e
+  set -x
   # query the latest tag of the fork
   merge_from=$(git ls-remote --tags --sort -version:refname upstream "${SOURCE_TAG_WILDCARD}" | head -n 1 | awk '{print $2;}')
-  set +e
+  set +x
 fi
 
 log "Updating default branch from '${merge_from}'"
@@ -107,7 +108,8 @@ if [[ "${pr_info}" == "0,null" || "${pr_info}" == "1,null" ]]; then
 
   # set up remote of target repository
   log "Setting up remote 'upstream-copy' in target repository clone"
-  git -C .target-repo remote add -f --no-tags upstream-copy ../
+  git -C .target-repo remote add upstream-copy ../
+  git -C .target-repo fetch --quiet --no-tags upstream-copy
 
   # determine default branch of our repo
   target_default_branch=$(git -C .target-repo remote show origin | grep "HEAD branch" | sed "s/.*: //")
@@ -135,7 +137,7 @@ if [[ "${pr_info}" == "0,null" || "${pr_info}" == "1,null" ]]; then
 
     # extract the path we require into a branch named temp-split-branch
     log "git subtree split -P ${SOURCE_PATH} -b temp-split-branch"
-    git subtree -d split -P "${SOURCE_PATH}" -b temp-split-branch
+    git subtree split -P "${SOURCE_PATH}" -b temp-split-branch
 
     # create the pr branch from the default branch of the repository
     log "Creating PR branch 'update-from-upstream' from '${target_default_branch}'"
@@ -146,7 +148,7 @@ if [[ "${pr_info}" == "0,null" || "${pr_info}" == "1,null" ]]; then
     # Do not fail immediately. We want to try further merge conflict
     # autoresolving
     set +e
-    git subtree -d merge --squash -P "${TARGET_PATH}" temp-split-branch
+    git subtree merge --squash -P "${TARGET_PATH}" temp-split-branch
     retval=$?
     set -e
 
