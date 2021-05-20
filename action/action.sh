@@ -46,6 +46,8 @@ log () {
 git config --global user.email "action@github.com"
 git config --global user.name "github-actions"
 
+git config --global core.pager "cat"
+
 log "Un-shallowing clone"
 # repositories in GitHub actions are shallow clones, this makes sure we have a full copy
 git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
@@ -64,26 +66,15 @@ log "Default branch of this repository: ${default_branch}"
 log "Setting up remote 'upstream' with '${fork_clone_url}'"
 git remote add -f upstream "${fork_clone_url}"
 
-# # set up branch tracking
-# git switch -c "upstream-${default_branch}" "upstream/${default_branch}"
-
-# # fetch from upstream
-# git fetch upstream
-
-
-# # merge default branch from upstream into your local upstream-${default_branch} branch
-# git merge --no-edit "upstream/${default_branch}"
-
-# # switch to our default branch
-# git checkout "${default_branch}"
-
 merge_from="upstream/${default_branch}"
 
 if [[ -n "${SOURCE_TAG_WILDCARD}" ]]; then
-  log "Environment variable 'SOURCE_TAG_WILDCARD' set to ${SOURCE_TAG_WILDCARD}."
+  log "Environment variable 'SOURCE_TAG_WILDCARD' set to '${SOURCE_TAG_WILDCARD}'."
 
+  set -e
   # query the latest tag of the fork
-  merge_from=$(git ls-remote --exit-code --tags --sort -version:refname upstream "${SOURCE_TAG_WILDCARD}" | head -n 1 | awk '{print $2;}')
+  merge_from=$(git ls-remote --tags --sort -version:refname upstream "${SOURCE_TAG_WILDCARD}" | head -n 1 | awk '{print $2;}')
+  set +e
 fi
 
 log "Updating default branch from '${merge_from}'"
@@ -113,7 +104,6 @@ if [[ "${pr_info}" == "0,null" || "${pr_info}" == "1,null" ]]; then
   # clone the target repository
   log "Cloning the target repository (${TARGET_REPOSITORY}) into subfolder .target-repo"
   git clone "https://${TARGET_GITHUB_TOKEN}@github.com/${TARGET_REPOSITORY}.git" .target-repo
-  #git -C .target-repo remote set-url origin "https://${TARGET_GITHUB_TOKEN}@github.com/${TARGET_REPOSITORY}.git"
 
   # set up remote of target repository
   log "Setting up remote 'upstream-copy' in target repository clone"
@@ -162,7 +152,7 @@ if [[ "${pr_info}" == "0,null" || "${pr_info}" == "1,null" ]]; then
 
     # Capture a diff. It will be posted into the PR
     echo -e 'During subtree-merge there were some conflicts:\n```diff' > diff
-    git diff >> diff
+    git diff --no-color >> diff
     echo '```' >> diff
 
     if [[ "${retval}" != 0 ]]; then
@@ -176,9 +166,6 @@ if [[ "${pr_info}" == "0,null" || "${pr_info}" == "1,null" ]]; then
     # cd back..
     cd ..
   fi
-
-  git diff --name-only
-  git -C .target-repo diff --name-only
 
   touch .target-repo/diff
 
