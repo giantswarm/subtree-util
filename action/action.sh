@@ -126,7 +126,6 @@ if [[ "${pr_info}" == "0,null" || "${pr_info}" == "1,null" ]]; then
     log "git subtree merge --squash -P ${TARGET_PATH} upstream-copy/${default_branch}"
     git -C .target-repo subtree merge --squash -P "${TARGET_PATH}" "upstream-copy/${default_branch}"
   else
-    set -x
     # go to the default branch of the upstream-copy remote
     log "Checkout 'upstream-copy/${default_branch}' in target repository"
     git -C .target-repo checkout "upstream-copy/${default_branch}"
@@ -147,16 +146,21 @@ if [[ "${pr_info}" == "0,null" || "${pr_info}" == "1,null" ]]; then
     # Do not fail immediately. We want to try further merge conflict
     # autoresolving
     set +e
-    git subtree merge --squash -P "${TARGET_PATH}" temp-split-branch
+    subtree_merge_output=$(git subtree merge --squash -P "${TARGET_PATH}" temp-split-branch)
     retval=$?
     set -e
 
-    # Capture a diff. It will be posted into the PR
-    echo -e 'During subtree-merge there were some conflicts:\n```diff' > diff
-    git diff --no-color >> diff
-    echo '```' >> diff
+    if [[ "${subtree_merge_output}" == *"Can't squash-merge"* ]]; then
+      log "git substree merge had an error"
+      log "${subtree_merge_output}"
+      exit 1
+    fi
 
     if [[ "${retval}" != 0 ]]; then
+      # Capture a diff. It will be posted into the PR
+      echo -e 'During subtree-merge there were some conflicts:\n```diff' > diff
+      git diff --no-color >> diff
+      echo '```' >> diff
       log "subtree merge had conflicts, trying to fix"
       git diff --name-only --diff-filter=U | xargs git checkout --ours
       git diff --name-only --diff-filter=U | xargs git add
