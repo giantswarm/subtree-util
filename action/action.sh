@@ -150,7 +150,7 @@ if [[ "${pr_info}" == "0,null" || "${pr_info}" == "1,null" ]]; then
     retval=$?
     set -e
 
-    if [[ "${subtree_merge_output}" == *"Can't squash-merge"* ]]; then
+    if [[ "${subtree_merge_output}" == *"was never added"* ]]; then
       log "git substree merge had an error"
       log "${subtree_merge_output}"
       exit 1
