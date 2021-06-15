@@ -1,4 +1,4 @@
-# subtree-utils
+# subtree-util
 
 Helpers to make setting up an app repository which follows an upstream.
 
@@ -8,6 +8,18 @@ It is possible to automate some parts of the workflow using a GitHub actions wor
 
 The workflow definition goes into the fork of the upstream you want to sync with.
 A workflow secret containing a GitHub access token is **required**.
+
+Additionaly, you may want to configure your repository to only allow the `giantswarm/subtree-util` action.
+
+<details>
+
+<summary>Configuration screenshot</summary>
+
+![Only allow giantswarm/subtree-util action](docs/repo-action-configuration.png)
+
+</details>
+
+### Example `.github/workflows/sync-form-upstream.yaml`:
 
 ```
 name: Sync from upstream
