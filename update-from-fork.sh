@@ -83,8 +83,17 @@ fi
 # extract the path we require into a branch named temp-split-branch
 git subtree split -P "${fork_chart_path}" -b temp-split-branch
 
-# create the pr branch from the default branch of the repository
-git checkout -b "${pr_branch}" "${default_branch}"
+set +e
+git rev-parse --verify "${pr_branch}" >/dev/null 2>&1
+retval=$?
+set -e
+if [[ "${retval}" == 0 ]]; then
+  # the target branch already exists, use it
+  git checkout "${pr_branch}"
+else
+  # create the pr branch from the default branch of the repository
+  git checkout -b "${pr_branch}" "${default_branch}"
+fi
 
 # merge back from the temp-split-branch
 git subtree -d "${subtree_mode}" --squash -P "${target_app_path}" temp-split-branch
