@@ -27,12 +27,12 @@ fi
 fork_target_type=${fork_target_ref%:*}
 fork_target_name=${fork_target_ref#*:}
 
-if [ "${subtree_mode}" == "merge" && ! -d "${target_app_path}" ]; then
+if [[ "${subtree_mode}" == "merge" && ! -d "${target_app_path}" ]]; then
   echo -e "Error:\n'${target_app_path}' target directory not found."
   exit 1
 fi
 
-if [ "${subtree_mode}" == "add" && -d "${target_app_path}" ]; then
+if [[ "${subtree_mode}" == "add" && -d "${target_app_path}" ]]; then
   echo -e "Error:\n'${target_app_path}' target directory already exists."
   exit 1
 fi
@@ -71,9 +71,9 @@ git pull origin "${default_branch}"
 if [[ "${fork_target_type}" == "tag" ]]; then
   # we might already have the tag and git will complain
   set +e
-  git fetch upstream-copy --tags "${fork_target_name}"
+  git fetch upstream-copy "+refs/tags/${fork_target_name}:refs/tags/upstream-copy-${fork_target_name}"
   set -e
-  git checkout "${fork_target_name}"
+  git checkout "upstream-copy-${fork_target_name}"
 else
   git fetch upstream-copy "${fork_target_name}"
   git checkout "upstream-copy/${fork_target_name}"
@@ -83,8 +83,17 @@ fi
 # extract the path we require into a branch named temp-split-branch
 git subtree split -P "${fork_chart_path}" -b temp-split-branch
 
-# create the pr branch from the default branch of the repository
-git checkout -b "${pr_branch}" "${default_branch}"
+set +e
+git rev-parse --verify "${pr_branch}" >/dev/null 2>&1
+retval=$?
+set -e
+if [[ "${retval}" == 0 ]]; then
+  # the target branch already exists, use it
+  git checkout "${pr_branch}"
+else
+  # create the pr branch from the default branch of the repository
+  git checkout -b "${pr_branch}" "${default_branch}"
+fi
 
 # merge back from the temp-split-branch
 git subtree -d "${subtree_mode}" --squash -P "${target_app_path}" temp-split-branch
