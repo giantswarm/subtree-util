@@ -189,8 +189,8 @@ if [[ "${pr_info}" == "0,null" || "${pr_info}" == "1,null" ]]; then
       gh --repo "${TARGET_REPOSITORY}" pr create --title "Update from upstream" --base "${target_default_branch}" --head update-from-upstream --label "automated-update" --body-file -
   else
     # push changes into branch
-    log "Force push changes into PR branch"
-    git -C .target-repo push -f origin update-from-upstream
+    log "Push changes into PR branch"
+    git -C .target-repo push origin update-from-upstream
 
     # comment on PR
     log "Adding comment to existing PR"
