@@ -188,6 +188,10 @@ if [[ "${pr_info}" == "0,null" || "${pr_info}" == "1,null" ]]; then
     echo -e "This PR has been created from automation in https://github.com/${GITHUB_REPOSITORY}\n\n$(cat .target-repo/diff)" | \
       gh --repo "${TARGET_REPOSITORY}" pr create --title "Update from upstream" --base "${target_default_branch}" --head update-from-upstream --label "automated-update" --body-file -
   else
+    # pull existing changes
+    log "Pull changes into PR branch"
+    git -C .target-repo pull origin update-from-upstream
+
     # push changes into branch
     log "Push changes into PR branch"
     git -C .target-repo push origin update-from-upstream
