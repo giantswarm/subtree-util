@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2021-07-21
+
 ### Changed
 
 - No longer force push.
 
-[Unreleased]: https://github.com/giantswarm/subtree-util/tree/master
+[Unreleased]: https://github.com/giantswarm/subtree-util/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/giantswarm/subtree-util/releases/tag/v0.2.0
