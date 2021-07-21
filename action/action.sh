@@ -198,7 +198,7 @@ if [[ "${pr_info}" == "0,null" || "${pr_info}" == "1,null" ]]; then
 
     # comment on PR
     log "Adding comment to existing PR"
-    echo -e "Force pushed through automation\n\n$(cat .target-repo/diff)" | \
+    echo -e "Pushed through automation\n\n$(cat .target-repo/diff)" | \
       gh --repo "${TARGET_REPOSITORY}" pr comment "update-from-upstream" --body-file -
   fi
 fi
