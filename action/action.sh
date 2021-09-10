@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+set -x
 IFS=$'\n\t'
 
 # are we in a git repository
