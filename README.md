@@ -37,9 +37,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
+        with:
+	  fetch-depth: 0
       - name: Sync from upstream
-        uses: giantswarm/subtree-util@main
+        uses: giantswarm/subtree-util@remove_shallow_logic
         with:
           target_github_token: ${{ secrets.ARCHITECT_BOT_GITHUB_REPO_SYNC_TOKEN }}
           target_repository: <TARGET-REPOSITORY>

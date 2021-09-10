@@ -48,10 +48,10 @@ git config --global user.name "github-actions"
 
 git config --global core.pager "cat"
 
-log "Un-shallowing clone"
+#log "Un-shallowing clone"
 # repositories in GitHub actions are shallow clones, this makes sure we have a full copy
-git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
-git fetch --quiet origin --unshallow --no-auto-gc
+#git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
+#git fetch --quiet origin --unshallow --no-auto-gc
 
 log "Querying information for ${GITHUB_REPOSITORY} from GitHub API"
 # query the forks clone url, we need it for setting up the remote
