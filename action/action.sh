@@ -140,6 +140,7 @@ if [[ "${pr_info}" == "0,null" || "${pr_info}" == "1,null" ]]; then
     # create the pr branch from the default branch of the repository
     log "Creating PR branch 'update-from-upstream' from '${target_default_branch}'"
     git checkout -b update-from-upstream "${target_default_branch}"
+    git pull origin update-from-upstream
 
     # merge back from the temp-split-branch
     log "git subtree merge --squash -P ${TARGET_PATH} temp-split-branch"
