@@ -2,7 +2,7 @@
 #
 #    devctl
 #
-#    https://github.com/giantswarm/devctl/blob/7a2bb1c2403407b720ec16e047f804471a57209e/pkg/gen/input/workflows/internal/file/ensure_major_version_tags.yaml.template
+#    https://github.com/giantswarm/devctl/blob/dc49303eb31fa5ef0996aadfda1da4c56a3ad883/pkg/gen/input/workflows/internal/file/ensure_major_version_tags.yaml.template
 #
 name: Ensure major version tags
 on:
@@ -22,5 +22,5 @@ jobs:
     name: Ensure major version tags
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.1.3
+      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
       - uses: giantswarm/floating-tags-action@80ab97ac423893e85897266c75290b93b7946617  # v1.0.1
