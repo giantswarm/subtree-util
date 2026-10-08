@@ -92,6 +92,6 @@ TODO...
 
 ### API Links
 
-- [Create a fork](https://docs.github.com/en/rest/reference/repos#create-a-fork)
-- [Rename a repository](https://docs.github.com/en/rest/reference/repos#update-a-repository)
-- [Create a repository from template](https://docs.github.com/en/rest/reference/repos#create-a-repository-using-a-template)
+- [Create a fork](https://docs.github.com/en/rest/repos/forks#create-a-fork)
+- [Rename a repository](https://docs.github.com/en/rest/repos/repos#update-a-repository)
+- [Create a repository from template](https://docs.github.com/en/rest/repos/repos#create-a-repository-using-a-template)
